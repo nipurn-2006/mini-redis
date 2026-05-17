@@ -13,8 +13,6 @@
 
 using namespace std;
 using namespace chrono;
-
-// ---- LRU CACHE ----
 const int MAX_KEYS = 5;
 
 struct Node {
@@ -24,8 +22,6 @@ struct Node {
 list<Node> lruList;
 unordered_map<string, list<Node>::iterator> lruMap;
 unordered_map<string, steady_clock::time_point> expiryMap;
-
-// ---- AOF ----
 ofstream aofFile;
 
 void appendToAOF(const vector<string>& tokens) {
@@ -37,7 +33,7 @@ void appendToAOF(const vector<string>& tokens) {
     aofFile.flush(); // write immediately, don't buffer
 }
 
-// ---- EXPIRY CHECK ----
+
 bool isExpired(const string& key) {
     auto it = expiryMap.find(key);
     if (it == expiryMap.end()) return false;
@@ -53,7 +49,7 @@ void deleteKey(const string& key) {
     expiryMap.erase(key);
 }
 
-// ---- CORE OPERATIONS ----
+
 void setValue(const string& key, const string& value) {
     if (lruMap.count(key)) {
         lruList.erase(lruMap[key]);
@@ -85,7 +81,7 @@ string getValue(const string& key) {
     return it->second->value;
 }
 
-// ---- COMMAND HANDLER ----
+
 string handleCommand(const vector<string>& tokens, bool fromAOF = false) {
     if (tokens.empty()) return "ERROR: empty command\n";
     string cmd = tokens[0];
@@ -139,7 +135,7 @@ string handleCommand(const vector<string>& tokens, bool fromAOF = false) {
     return "ERROR: unknown command\n";
 }
 
-// ---- COMMAND PARSER ----
+
 vector<string> parseCommand(const string& input) {
     vector<string> tokens;
     stringstream ss(input);
@@ -148,7 +144,7 @@ vector<string> parseCommand(const string& input) {
     return tokens;
 }
 
-// ---- AOF REPLAY ON STARTUP ----
+
 void replayAOF() {
     ifstream file("appendonly.aof");
     if (!file.is_open()) {
@@ -168,7 +164,7 @@ void replayAOF() {
     cout << "[AOF] Replayed " << count << " commands\n";
 }
 
-// ---- TCP SERVER ----
+
 int main() {
     // open AOF file in append mode
     aofFile.open("appendonly.aof", ios::app);
